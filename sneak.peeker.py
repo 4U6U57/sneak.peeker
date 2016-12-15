@@ -25,6 +25,7 @@ def main():
 
     # Parser for commit
     parser_commit = subparsers.add_parser("commit", help="Adds sneak peek file and processes it")
+    parser_commit.add_argument("sneak_peek", metavar="FILE", help="Sneak peek file to compare to tests")
     parser_commit.set_defaults(func=commit)
     
     # Main
@@ -33,19 +34,29 @@ def main():
 
 # Creates .snk dir in current directory
 def init(args):
-    print "INIT"
     if os.path.isdir(prog_dir):
         print "Existing %s directory in %s" % (prog, prog_dir)
-        exit(1)
-    os.makedirs(prog_dir) 
-    print "Initialized empty %s directory in %s" % (prog, prog_dir)
+    else:
+        os.makedirs(prog_dir) 
+        print "Initialized empty %s directory in %s" % (prog, prog_dir)
 
 # Parses 
 def add(args):
-    print "ADD"
+    if not os.path.isdir(prog_dir):
+        print "fatal: not a %s directory: %s" % (prog, prog_dir)
+    else:
+        for test in args.tests:
+            # TODO: Process test file, separating by question and saving
+            # files to .snk directory
+            print test
 
 def commit(args):
-    print "COMMIT"
+    if not os.path.isdir(prog_dir):
+        print "fatal: not a %s directory: %s" % (prog, prog_dir)
+    else:
+        print args.sneak_peek
+        # TODO: Create subfolder in .snk folder for this sneak peek
+        # Then process each question file using the sneak peek
 
 if __name__ == "__main__":
     main()
