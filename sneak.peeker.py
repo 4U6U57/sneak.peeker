@@ -3,6 +3,7 @@
 import sys
 import argparse
 import os
+import yaml
 
 # Global variables
 prog = os.path.basename(
@@ -14,7 +15,6 @@ test_prefix = "test__"
 
 def main(
 ):
-
     # Top level parser
     parser = argparse.ArgumentParser(
     )
@@ -79,6 +79,7 @@ def main(
     )
     if args.verbose:
         print "%s ran with verbose output" % prog
+
     args.directory = os.path.abspath(
         args.
         directory
@@ -94,23 +95,39 @@ def main(
     )
 
 
+#
+def assert_directory(
+        directory
+):
+    if not os.path.isdir(
+            directory
+    ):
+        sys.exit(
+            "fatal: not a directory: %s"
+            %
+            (prog,
+             directory
+             )
+        )
+
+
+#
 def init(
         args
 ):
-    """
-    Initializes program directory
-    """
-
     if os.path.isdir(
             args.
             directory
     ):
-        print "Existing %s directory: %s" % (
-            prog,
-            args.
-            directory
+        exit(
+            "Existing %s directory: %s"
+            %
+            (prog,
+             args.
+             directory
+             )
         )
-    else:
+
         os.makedirs(
             args.
             directory
@@ -122,81 +139,84 @@ def init(
         )
 
 
+        #
 def add(
         args
 ):
-    """
-    Adds test files to the staging area
-    """
-
-    if not os.path.isdir(
-            args.
-            directory
-    ):
-        print "fatal: not a %s directory: %s" % (
-            prog,
-            args.
-            directory
+    assert_directory(
+        args.
+        directory
+    )
+    for test in args.tests:
+        # TODO: Handle UNIX file expressions, wildcards, etc
+        test_infile = os.path.abspath(
+            test
         )
-    else:
-        for test in args.tests:
-            # TODO: Handle UNIX file expressions, wildcards, etc
-            # For now handling each test as explicit filename
-            test_file = os.path.abspath(
-                test
+        test_name = os.path.basename(
+            test_infile
+        )
+        test_object = None
+        test_outfile = args.directory + "/" + test_name + ".yaml"
+        if not os.path.isfile(
+                test_infile
+        ):
+            print "warning: test %s cannot be found, ignoring: %s" % (
+                test_name,
+                test_infile
             )
-            test_name = os.path.basename(
-                test_file
+        elif os.path.exists(
+                test_outfile
+        ):
+            print "warning: test %s is already added, ignoring: %s" % (
+                test_name,
+                test_outfile
             )
-            test_dir = args.directory + "/" + test_prefix + test_name
-            if not os.path.isfile(
-                    test_file
-            ):
-                print "warning: test %s cannot be found, ignoring: %s" % (
-                    test_name,
-                    test_file
+        else:
+            print "%s is a valid file: %s -> %s" % (
+                test,
+                test_infile,
+                test_outfile
+            )
+            test_infile_object = open(
+                test_infile,
+                "r"
+            )
+            test_outfile_object = open(
+                test_outfile,
+                "w"
+            )
+            test_object = dict(
+                name=test_name,
+                path=test_infile,
+                text=map(
+                    str.
+                    rstrip,
+                    test_infile_object
                 )
-            elif os.path.isdir(
-                    test_dir
-            ):
-                print "warning: test %s already exists, ignoring: %s" % (
-                    test_name,
-                    test_dir
+            )
+            test_outfile_object.write(
+                yaml.
+                dump(
+                    test_object
                 )
-            else:
-                print "%s is a valid file: %s" % (
-                    test,
-                    test_file
-                )
-                os.makedirs(
-                    test_dir
-                )
-                if args.verbose:
-                    print "Created test directory: %s" % test_dir
+            )
+            test_infile_object.close(
+            )
+            test_outfile_object.close(
+            )
 
 
+#
 def commit(
         args
 ):
-    """
-    Splits up each test file into questions
-    """
-
-    if not os.path.isdir(
-            args.
-            directory
-    ):
-        print "fatal: not a %s directory: %s" % (
-            prog,
-            args.
-            directory
-        )
-    else:
-        print args.sneak_peek
-        # TODO: Create subfolder in .snk folder for this sneak peek
-        # Then process each question file using the sneak peek
+    assert_directory(
+        args.
+        directory
+    )
 
 
+#
 if __name__ == "__main__":
     main(
     )
