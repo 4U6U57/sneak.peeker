@@ -33,17 +33,22 @@ def main():
 
   # Parser for add
   parser_add = subparsers.add_parser(
-      "add", help="adds test files and processes them")
+      "add", help="adds test files to the staging area")
   parser_add.add_argument(
-      "tests", metavar="FILE", help="test file to add and process", nargs='+')
+      "tests", metavar="FILE", help="test file to add", nargs='+')
   parser_add.set_defaults(func=add)
 
   # Parser for commit
   parser_commit = subparsers.add_parser(
-      "commit", help="adds sneak peek file and processes it")
-  parser_commit.add_argument(
-      "sneak_peek", metavar="FILE", help="sneak peek file to compare to tests")
+      "commit", help="splits staged test files by question")
   parser_commit.set_defaults(func=commit)
+
+  # Parser for push
+  parser_push = subparsers.add_parser(
+      "push", help="parses given sneak peek for all staged questions")
+  parser_push.add_argument("sneak", metavar="FILE", help="sneak peek file to
+      process")
+  parser_push.set_defaults(func=push)
 
   # Main
   args = parser.parse_args()
@@ -56,7 +61,6 @@ def main():
 def assert_directory(directory):
   if not os.path.isdir(directory):
     sys.exit("fatal: not a directory: %s" % (prog, directory))
-  pass
 
 
 def sneak_peek(string):
@@ -70,7 +74,6 @@ def sneak_peek(string):
 def init(args):
   if os.path.isdir(args.directory):
     exit("Existing %s directory: %s" % (prog, args.directory))
-  pass
   os.makedirs(args.directory)
   print "Initialized empty %s directory: %s" % (prog, args.directory)
 
@@ -85,10 +88,10 @@ def add(args):
     test_outfile = args.directory + "/" + test_name + ".yaml"
     if not os.path.isfile(test_infile):
       print "warning: test %s cannot be found, ignoring: %s" % (test_name,
-                                                                test_infile)
+          test_infile)
     elif os.path.exists(test_outfile):
       print "warning: test %s is already added, ignoring: %s" % (test_name,
-                                                                 test_outfile)
+          test_outfile)
     else:
       print "%s is a valid file: %s -> %s" % (test, test_infile, test_outfile)
       test_infile_object = open(test_infile, "r")
@@ -107,6 +110,9 @@ def add(args):
 
 
 def commit(args):
+  assert_directory(args.directory)
+
+def push(args):
   assert_directory(args.directory)
 
 
