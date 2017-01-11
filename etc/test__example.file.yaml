@@ -1,0 +1,36 @@
+# This is an example test file
+
+# The output of 'sneak_peek' on the txt input
+dictionary: [array, of, unique, words, in, the, file]
+
+# The filename of the txt input of the test
+name: example.file
+
+# The full path of the txt input file
+path: /path/to/example.file
+
+# List of questions
+questions:
+
+  # Each '-' signifies the start of a new question
+  -
+
+    # The first line in the question
+    start: first_line
+
+    # The last line in the question
+    end: last_line
+
+    # The subset of the dictionary that appears in this question
+    # Formatted as a bitmask, where 0b1000... would refer to a question with
+    # only the first word
+    dictionary: bitmask_of_words_in_dictionary_found_in_question
+
+  # Multiple questions in a test
+  -
+    start: first_line
+    end: last_line
+    dictionary: bitmask_of_words_in_dictionary_found_in_question
+
+# The literal text of the txt file, stored in an array by line
+text: ['lines in the file', 'in an array']

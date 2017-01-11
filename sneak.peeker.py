@@ -4,6 +4,7 @@ import sys
 import argparse
 import os
 import yaml
+import re
 
 # Global variables
 prog = os.path.basename(__file__)
@@ -46,13 +47,9 @@ def main():
 
   # Main
   args = parser.parse_args()
-  if args.verbose:
-    print "%s ran with verbose output" % prog
-  pass
+  if args.verbose: print "%s ran with verbose output" % prog
   args.directory = os.path.abspath(args.directory)
-  if args.verbose:
-    print "%s directory: %s" % (prog, args.directory)
-  pass
+  if args.verbose: print "%s directory: %s" % (prog, args.directory)
   args.func(args)
 
 
@@ -60,6 +57,14 @@ def assert_directory(directory):
   if not os.path.isdir(directory):
     sys.exit("fatal: not a directory: %s" % (prog, directory))
   pass
+
+
+def sneak_peek(string):
+  string_lower = string.lower()
+  string_stripped = re.sub("[^A-Za-z0-9]", "\n", string_lower)
+  string_split = string_stripped.split()
+  string_unique = set(string_split)
+  return sorted(string_unique)
 
 
 def init(args):
@@ -90,10 +95,10 @@ def add(args):
       test_outfile_object = open(test_outfile, "w")
       test_infile_contents = test_infile_object.read()
       test_outfile_dict = dict(
+          dictionary=sneak_peek(test_infile_contents),
           name=test_name,
           path=test_infile,
-          text=test_infile_contents.splitlines(),
-          dictionary=sorted(set(test_infile_contents.split())))
+          text=test_infile_contents.splitlines())
       test_outfile_object.write(yaml.dump(test_outfile_dict))
       test_infile_object.close()
       test_outfile_object.close()
